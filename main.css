@@ -1,5 +1,10 @@
-div {
+#menu > button {
+    display: block;
+    margin-left: auto;
+}
+#editbox {
     display: block;
     width: 800px;
+    height: 800px;
     margin: 0 auto;
 }
