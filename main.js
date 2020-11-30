@@ -1,6 +1,8 @@
 const modeChangeButton = document.getElementById('changemode');
 const editbox = document.getElementById('editbox');
 
+const lzma = LZMA;
+
 let content = '';
 
 const showMD = (new_content) => {
@@ -14,8 +16,8 @@ const showEdit = () => {
     editbox.contentEditable = true;
 };
 
-const updateURL = () => {
-    location.hash = '#' + encodeURI(editbox.innerText);
+const updateURL = (newContent) => {
+    location.hash = '#' + btoa(String.fromCharCode.apply(null, new Uint8Array(newContent)));
 };
 
 modeChangeButton.onclick = () => {
@@ -32,19 +34,25 @@ modeChangeButton.onclick = () => {
             showEdit();
             break;
         default:
-            console.log(`Sorry, we are out of ${currentMode}.`);         
+            console.log(`Unknown mode: ${currentMode}.`);         
     }
 };
 
 editbox.oninput = () => {
-    updateURL();
+    lzma.compress(editbox.innerText, 9, (result, error) => { updateURL(result); }, (percent) => {});
 };
 
 window.onload = () => {
-    const input = decodeURI(location.hash.substr(1));
-    if (input !== '') {
-        showMD(input);
-        modeChangeButton.innerText = 'edit';
-        modeChangeButton.setAttribute('data-mode', 'view');
+    const input = atob(location.hash.substr(1));
+    const inputLength = input.length;
+    const inputArray = new Array(inputLength);
+    for (let i = 0; i < inputLength; i++) {
+        inputArray[i] = input.charCodeAt(i);
+        if (inputArray[i] > 128) {
+            inputArray[i] -= 256;
+        }
     }
+    lzma.decompress(inputArray, (result, error) => { showMD(result); }, (percent) => {});
+    modeChangeButton.innerText = 'edit';
+    modeChangeButton.setAttribute('data-mode', 'view');
 };
