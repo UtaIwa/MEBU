@@ -15,7 +15,7 @@ const showEdit = () => {
 };
 
 const updateURL = () => {
-    location.hash = encodeURI(editbox.innerText);
+    location.hash = '#' + encodeURI(editbox.innerText);
 };
 
 modeChangeButton.onclick = () => {
